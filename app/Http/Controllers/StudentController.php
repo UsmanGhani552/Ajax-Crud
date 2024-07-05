@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
+    use ImageUploadTrait;
     public function index()
     {
         return view('student.index');
@@ -42,13 +44,8 @@ class StudentController extends Controller
             $student->course = $request->input('course');
             $student->email = $request->input('email');
             $student->phone = $request->input('phone');
-
-            if($request->hasFile('image')){
-                $image = $request->file('image');
-                $filename = time() .'.'. $image->getClientOriginalName();
-                $image->move('images', $filename);
-                $student->image = $filename;
-            }
+            $filename = $this->uploadImage($request,'images','image');
+            $student->image = $filename;
 
             $student->save();
             return response()->json([
@@ -95,12 +92,8 @@ class StudentController extends Controller
                 $student->course = $request->input('course');
                 $student->email = $request->input('email');
                 $student->phone = $request->input('phone');
-                if($request->hasFile('image')){
-                    $image = $request->file('image');
-                    $filename = time() .'.'. $image->getClientOriginalName();
-                    $image->move('images', $filename);
-                    $student->image = $filename;
-                }
+                $filename = $this->uploadImage($request,'images','image');
+                $student->image = $filename;
                 $student->update();
                 return response()->json([
                     'status' => 200,
