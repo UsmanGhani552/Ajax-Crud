@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
@@ -44,7 +45,7 @@ class StudentController extends Controller
             $student->course = $request->input('course');
             $student->email = $request->input('email');
             $student->phone = $request->input('phone');
-            $filename = $this->uploadImage($request,'images','image');
+            $filename = $this->uploadImage($request, 'images', 'image');
             $student->image = $filename;
 
             $student->save();
@@ -88,12 +89,17 @@ class StudentController extends Controller
         } else {
             $student = Student::find($id);
             if ($student) {
+                $destination = "images/{$student->image}";
+                if (File::exists(public_path($destination))) {
+                    File::delete(public_path($destination));
+                }
                 $student->name = $request->input('name');
                 $student->course = $request->input('course');
                 $student->email = $request->input('email');
                 $student->phone = $request->input('phone');
-                $filename = $this->uploadImage($request,'images','image');
-                $student->image = $filename;
+                $student->image = $this->uploadImage($request, 'images', 'image',$student->image);
+                // if ($image != null)
+                //     $student->image = $image;
                 $student->update();
                 return response()->json([
                     'status' => 200,
@@ -112,6 +118,10 @@ class StudentController extends Controller
     {
         $student = Student::find($id);
         if ($student) {
+            $destination = "images/{$student->image}";
+            if (File::exists(public_path($destination))) {
+                File::delete(public_path($destination));
+            }
             $student->delete();
             return response()->json([
                 'status' => 200,

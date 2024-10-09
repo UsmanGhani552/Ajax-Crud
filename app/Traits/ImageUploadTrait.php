@@ -4,7 +4,7 @@ namespace App\Traits;
 use Illuminate\Http\Request;
 trait ImageUploadTrait
 {
-    public function uploadImage(Request $request,string $path, string $name)
+    public function uploadImage(Request $request,string $path, string $name , string $defaultPath = null)
     {
         if($request->hasFile($name)) {
             $file = $request->file($name);
@@ -14,7 +14,7 @@ trait ImageUploadTrait
             $file->move($path, $filename);
             return $filename;
         }
-        return null;
+        return $defaultPath;
     }
 }
 
